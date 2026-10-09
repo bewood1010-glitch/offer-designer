@@ -161,3 +161,15 @@ grant execute on function public.od_signup(text,text), public.od_login(text,text
 
 -- first administrator: after signing up in the app, run once in the SQL editor
 -- update public.od_users set status = 'approved', is_admin = true, approved_at = now() where nickname = '<your nickname>';
+
+-- One-time bootstrap: the first sign-up with nickname 'Seowoo' becomes the approved admin, only while no admin exists.
+create or replace function public.od__bootstrap_admin() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if lower(new.nickname) = 'seowoo' and not exists (select 1 from od_users where is_admin) then
+    new.status := 'approved'; new.is_admin := true; new.approved_at := now();
+  end if;
+  return new;
+end $$;
+revoke execute on function public.od__bootstrap_admin() from public, anon, authenticated;
+drop trigger if exists od_bootstrap_admin on public.od_users;
+create trigger od_bootstrap_admin before insert on public.od_users for each row execute function public.od__bootstrap_admin();
