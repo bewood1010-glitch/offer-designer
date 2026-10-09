@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Offer Designer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#16263d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-512.png">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Offer Designer</title>
+<style>
+:root{
+  --bg:#f5f6f8; --surface:#ffffff; --surface-2:#f0f2f5; --border:#dde1e7; --text:#1b2330; --muted:#5d6878;
+  --accent:#1f5fae; --accent-soft:#e3edf9; --header:#16263d; --header-text:#ffffff;
+  --good:#1d7a4a; --good-soft:#e2f4ea; --warn:#a15c00; --warn-soft:#fdf0dc; --bad:#b3261e; --bad-soft:#fbe4e2;
+  --band:#c9d6e8; --mkt:#8fb3e0; --cur:#6b7686; --floor:#8a6d3b; --target:#1f5fae; --stretch:#7b3fa0;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+  --radius:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1318; --surface:#171c23; --surface-2:#1e252e; --border:#2c3540; --text:#e6eaf0; --muted:#98a3b3;
+    --accent:#6ea8ff; --accent-soft:#1b2b44; --header:#0b1a2e; --header-text:#e6eaf0;
+    --good:#5bd08f; --good-soft:#15301f; --warn:#f0b35a; --warn-soft:#33270f; --bad:#ff8a80; --bad-soft:#3a1714;
+    --band:#2d3d55; --mkt:#3f6496; --cur:#a3adbb; --floor:#d1b07a; --target:#6ea8ff; --stretch:#c89be6;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1318; --surface:#171c23; --surface-2:#1e252e; --border:#2c3540; --text:#e6eaf0; --muted:#98a3b3;
+  --accent:#6ea8ff; --accent-soft:#1b2b44; --header:#0b1a2e; --header-text:#e6eaf0;
+  --good:#5bd08f; --good-soft:#15301f; --warn:#f0b35a; --warn-soft:#33270f; --bad:#ff8a80; --bad-soft:#3a1714;
+  --band:#2d3d55; --mkt:#3f6496; --cur:#a3adbb; --floor:#d1b07a; --target:#6ea8ff; --stretch:#c89be6;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+header.top{background:var(--header);color:var(--header-text);padding:calc(10px + env(safe-area-inset-top)) 16px 0;position:sticky;top:0;z-index:20}
+.top-row{display:flex;align-items:center;gap:12px;max-width:1280px;margin:0 auto}
+.brand{font-weight:700;font-size:17px;letter-spacing:.2px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{font-weight:400;opacity:.7;margin-left:8px;font-size:12px}
+.top-actions{display:flex;gap:6px}
+.top-actions button{background:rgba(255,255,255,.12);color:var(--header-text);border:0;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;min-height:34px}
+nav.tabs{display:flex;gap:2px;max-width:1280px;margin:8px auto 0;overflow-x:auto;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{background:none;border:0;color:var(--header-text);opacity:.7;padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-height:44px}
+nav.tabs button.active{opacity:1;border-bottom-color:#7fb0ff;font-weight:600}
+main{max-width:1280px;margin:0 auto;padding:16px 16px calc(40px + env(safe-area-inset-bottom))}
+.tab{display:none}.tab.active{display:block}
+.grid2{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+.card h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.card h2 .num{background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:1px 7px;font-size:12px}
+.card h3{font-size:14px;margin:16px 0 8px;color:var(--muted)}
+.hint{color:var(--muted);font-size:12.5px;margin:4px 0 0}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+.fields .full{grid-column:1/-1}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted);min-width:0}
+label.f span.l{display:flex;justify-content:space-between;gap:6px}
+input,select,textarea{font:inherit;color:var(--text);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;min-height:40px;width:100%;min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+input.num{text-align:right;font-variant-numeric:tabular-nums}
+details.more{margin-top:10px}
+details.more summary{cursor:pointer;color:var(--accent);font-size:13px;padding:6px 0}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:9px 14px;font:inherit;font-size:14px;cursor:pointer;min-height:40px}
+.btn.ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
+.btn.danger{background:var(--bad-soft);color:var(--bad);border:1px solid transparent}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.scen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.scen{grid-template-columns:minmax(0,1fr)}}
+.sc{border:1.5px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;background:var(--surface);position:relative}
+.sc.sel{border-color:var(--accent);background:var(--accent-soft)}
+.sc .t{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.sc .v{font-size:22px;font-weight:700;margin:4px 0 0;font-variant-numeric:tabular-nums}
+.sc .s{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sc .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12.5px;margin-top:8px}
+.sc .kv b{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;border-radius:999px;padding:1px 8px;font-size:11.5px;font-weight:600}
+.pill.good{background:var(--good-soft);color:var(--good)}.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.flags{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
+.flags li{border-radius:8px;padding:8px 10px;font-size:13px;display:flex;gap:8px}
+.flags li.good{background:var(--good-soft)}.flags li.warn{background:var(--warn-soft)}.flags li.bad{background:var(--bad-soft)}.flags li.info{background:var(--surface-2)}
+.flags li .ic{font-weight:700}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+@media (max-width:640px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.kpi .k{font-size:12px;color:var(--muted)}.kpi .v{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}.kpi .d{font-size:12px;color:var(--muted)}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{border:1px solid var(--border);padding:6px 8px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+th{background:var(--surface-2);font-weight:600;text-align:center}
+td.l,th.l{text-align:left}
+tr.sec td{background:var(--surface-2);font-weight:700;font-style:italic;text-align:left}
+tr.tot td{font-weight:700}
+tr.grand td{background:var(--header);color:var(--header-text);font-weight:700}
+td.ind{padding-left:22px}
+table.edit td{padding:2px}
+table.edit input{min-height:34px;border-radius:6px;padding:4px 6px}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.note{white-space:pre-wrap;background:var(--surface-2);border-radius:8px;padding:12px;font-size:13.5px;line-height:1.65}
+.src{font-size:12px;color:var(--muted)}
+.src a{color:var(--accent)}
+.list-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.list-item:last-child{border-bottom:0}
+.list-item .meta{font-size:12.5px;color:var(--muted)}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:8px;padding:2px;border:1px solid var(--border)}
+.seg button{border:0;background:none;color:var(--text);padding:6px 10px;border-radius:6px;font:inherit;font-size:13px;cursor:pointer;min-height:32px}
+.seg button.on{background:var(--surface);box-shadow:var(--shadow);font-weight:600}
+.mkt-md h3{color:var(--text);font-size:15px;margin:18px 0 8px}
+.mkt-md p,.mkt-md li{font-size:13.5px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--header);color:var(--header-text);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.show{opacity:1}
+.print-only{display:none}
+@media print{
+  header.top,nav,.no-print,.btn-row{display:none!important}
+  body{background:#fff;color:#000;font-size:11px}
+  main{padding:0;max-width:none}
+  .tab{display:none!important}
+  .tab.printing{display:block!important}
+  .card{box-shadow:none;border:0;padding:0}
+  .print-only{display:block}
+  tr.grand td{background:#1f3a5f!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  th,tr.sec td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+/* ---- v2 additions ---- */
+.sub{font-size:12px;color:var(--muted);margin:10px 0 4px;font-weight:600}
+.fields.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:520px){.fields.three{grid-template-columns:repeat(2,minmax(0,1fr))}}
+input[readonly]{opacity:.75}
+.peer-row{display:grid;grid-template-columns:22px minmax(0,1.3fr) minmax(0,.7fr) minmax(0,.8fr);gap:6px 8px;align-items:end;padding:10px 0;border-top:1px solid var(--border)}
+.peer-row .f:nth-of-type(4){grid-column:2 / 3}.peer-row .f:nth-of-type(5){grid-column:3 / 4}
+.peer-row .peer-del{grid-column:4 / 5;min-height:40px}
+.peer-row .peer-no{font-weight:700;color:var(--muted);align-self:center;grid-row:1 / 3}
+.peer-row input,.peer-row select{min-height:36px;padding:6px 8px}
+tr.near td{background:var(--accent-soft)}
+td.pos{color:var(--good)} td.neg{color:var(--bad)}
+.auth-wrap{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.auth-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow)}
+.auth-card h1{font-size:20px;margin:0 0 4px}
+.auth-card .msg{border-radius:8px;padding:10px 12px;font-size:13px;margin:12px 0 0}
+.auth-card .msg.err{background:var(--bad-soft);color:var(--bad)} .auth-card .msg.ok{background:var(--good-soft);color:var(--good)} .auth-card .msg.info{background:var(--surface-2)}
+.consent{font-size:12.5px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:10px 12px;margin-top:10px;line-height:1.6}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin-top:10px}
+.chk input{width:auto;min-height:auto;margin-top:3px}
+.user-chip{font-size:12.5px;opacity:.85;align-self:center;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hidden{display:none!important}
+.badge{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+</style>
+</head>
+<body>
+<!-- ============ AUTH GATE ============ -->
+<div class="auth-wrap hidden" id="authGate">
+ <div class="auth-card">
+  <h1 data-i18n="appTitle">연봉 오퍼 설계기</h1>
+  <p class="hint" data-i18n="authSub">관리자 승인을 받은 회원만 이용할 수 있습니다.</p>
+  <div class="seg" style="margin-top:14px"><button id="authTabLogin" class="on" data-i18n="login">로그인</button><button id="authTabSignup" data-i18n="signup">회원가입</button></div>
+  <div class="fields" style="grid-template-columns:1fr;margin-top:14px">
+   <label class="f"><span class="l" data-i18n="nickname">닉네임</span><input id="authNick" type="text" autocomplete="username" maxlength="20" autocapitalize="off" spellcheck="false"></label>
+   <label class="f"><span class="l" data-i18n="password">비밀번호</span><input id="authPw" type="password" autocomplete="current-password" maxlength="72"></label>
+   <label class="f hidden" id="authPw2Wrap"><span class="l" data-i18n="password2">비밀번호 확인</span><input id="authPw2" type="password" autocomplete="new-password" maxlength="72"></label>
+  </div>
+  <div id="signupExtra" class="hidden">
+   <div class="consent" data-i18n-html="privacyNotice"></div>
+   <label class="chk"><input type="checkbox" id="authConsent"><span data-i18n="consentLabel">위 개인정보 수집·이용에 동의합니다 (필수)</span></label>
+  </div>
+  <div class="btn-row"><button class="btn" id="authSubmit" style="flex:1" data-i18n="login">로그인</button></div>
+  <div id="authMsg" class="msg hidden"></div>
+  <div class="btn-row" style="justify-content:flex-end;margin-top:8px"><button class="btn ghost" id="authLang" style="min-height:32px;padding:4px 10px">EN</button></div>
+ </div>
+</div>
+
+<header class="top">
+  <div class="top-row">
+    <div class="brand"><span data-i18n="appTitle">연봉 오퍼 설계기</span><small>Repair Engineer · Korea</small></div>
+    <div class="top-actions">
+      <span class="user-chip hidden" id="userChip"></span>
+      <button id="btnLogout" class="hidden" data-i18n="logout">로그아웃</button>
+      <button id="btnLang" aria-label="Language">EN</button>
+      <button id="btnTheme" aria-label="Theme">◐</button>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="design" class="active" data-i18n="tabDesign">오퍼 설계</button>
+    <button data-tab="sheet" data-i18n="tabSheet">오퍼 시트</button>
+    <button data-tab="rewards" data-i18n="tabRewards">후보자용 보상 요약</button>
+    <button data-tab="market" data-i18n="tabMarket">시장 데이터</button>
+    <button data-tab="saved" data-i18n="tabSaved">저장 목록</button>
+    <button data-tab="settings" data-i18n="tabSettings">설정</button>
+    <button data-tab="admin" class="hidden" id="tabAdminBtn" data-i18n="tabAdmin">회원 관리</button>
+  </nav>
+</header>
+
+<main>
+<!-- ============ DESIGN ============ -->
+<section class="tab active" id="tab-design">
+ <div class="grid2">
+  <div>
+   <div class="card">
+    <h2><span class="num">1</span><span data-i18n="secCandidate">후보자 정보</span></h2>
+    <div class="fields">
+      <label class="f full"><span class="l" data-i18n="fName">이름</span><input id="c_name" type="text" autocomplete="off"></label>
+      <label class="f full"><span class="l" data-i18n="fPosGrade">포지션 · Job Grade</span><select id="c_grade"></select></label>
+      <label class="f"><span class="l" data-i18n="fTotalYears">총 경력(년)</span><input id="c_totalYears" class="num" type="number" min="0" step="0.5" inputmode="decimal"></label>
+      <label class="f"><span class="l" data-i18n="fRelYears">관련 경력(년)</span><input id="c_relYears" class="num" type="number" min="0" step="0.5" inputmode="decimal"></label>
+      <label class="f"><span class="l" data-i18n="fAge">나이</span><input id="c_age" class="num" type="number" min="18" max="70" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="fEdu">최종 학력</span><select id="c_edu"></select></label>
+      <label class="f"><span class="l" data-i18n="fCerts">관련 자격증 수</span><input id="c_certs" class="num" type="number" min="0" max="10" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="fInterview">면접 평가</span><select id="c_interview"></select></label>
+      <label class="f full"><span class="l" data-i18n="fSource">현 직장 유형</span><select id="c_source"></select></label>
+      <label class="f"><span class="l" data-i18n="fShift">교대근무</span><select id="c_shift"></select></label>
+      <label class="f"><span class="l" data-i18n="fEnglish">영어 역량</span><select id="c_english"></select></label>
+    </div>
+    <p class="hint" data-i18n="ageNote"></p>
+   </div>
+
+   <div class="card">
+    <h2><span class="num">2</span><span data-i18n="secCurrent">현재 보상 (현 직장)</span></h2>
+    <div class="fields">
+      <label class="f"><span class="l" data-i18n="fMonthly">월 기본급</span><input id="cur_monthly" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="fMonths">지급 개월수</span><input id="cur_months" class="num" type="number" min="12" max="24" step="1" inputmode="numeric"></label>
+    </div>
+    <div class="sub" data-i18n="subAllowMonthly">고정수당 (월)</div>
+    <div class="fields three">
+      <label class="f"><span class="l" data-i18n="aMeal">식대</span><input id="cur_meal" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="aCommute">교통/차량</span><input id="cur_commute" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="aService">근속</span><input id="cur_service" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="aFamily">가족</span><input id="cur_family" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="aSkill">자격/기술</span><input id="cur_skill" class="num money" inputmode="numeric"></label>
+    </div>
+    <div class="sub" data-i18n="subAllowAnnual">고정수당 (연)</div>
+    <div class="fields">
+      <label class="f"><span class="l" data-i18n="aFestival">명절수당</span><input id="cur_festival" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="aOther">기타수당</span><input id="cur_other" class="num money" inputmode="numeric"></label>
+    </div>
+    <div class="sub" data-i18n="subIncMisc">인센티브 · 기타</div>
+    <div class="fields">
+      <label class="f"><span class="l" data-i18n="fIncPct">목표 인센티브 %</span><input id="cur_incPct" class="num" type="number" min="0" max="300" step="0.5" inputmode="decimal"></label>
+      <label class="f"><span class="l" data-i18n="fIncAmt">최근 1년 성과급 총액</span><input id="cur_incAmt" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="mFlex">복지포인트(연)</span><input id="cur_flex" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="mOther">기타 연간</span><input id="cur_misc" class="num money" inputmode="numeric"></label>
+    </div>
+    <p class="hint" data-i18n="incHint"></p>
+    <details class="more"><summary data-i18n="moreCand">희망 연봉 · 경쟁 오퍼 · 포기 보상</summary>
+     <div class="fields" style="margin-top:8px">
+      <label class="f"><span class="l" data-i18n="fExpected">희망 총현금(연)</span><input id="c_expected" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="fCompeting">경쟁 오퍼 총현금(연)</span><input id="c_competing" class="num money" inputmode="numeric"></label>
+      <label class="f full"><span class="l" data-i18n="fForfeit">이직 시 포기 금액</span><input id="c_forfeit" class="num money" inputmode="numeric"></label>
+     </div>
+    </details>
+   </div>
+
+   <div class="card">
+    <h2><span class="num">3</span><span data-i18n="secOfferInputs">오퍼 조건 (당사)</span></h2>
+    <div class="fields">
+      <label class="f"><span class="l" data-i18n="fOfferMonths">지급 개월수</span><input id="o_months" class="num" type="number" min="12" max="24" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="fOfferIncPct">목표 인센티브 %</span><input id="o_incPct" class="num" type="number" min="0" max="100" step="0.5" inputmode="decimal"></label>
+    </div>
+    <div class="sub" data-i18n="subAllowMonthly">고정수당 (월)</div>
+    <div class="fields three">
+      <label class="f"><span class="l" data-i18n="aMeal">식대</span><input id="o_meal" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="aCommute">교통/차량</span><input id="o_commute" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="aService">근속</span><input id="o_service" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="aFamily">가족</span><input id="o_family" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="aSkill">자격/기술</span><input id="o_skill" class="num money" inputmode="numeric"></label>
+    </div>
+    <div class="sub" data-i18n="subAllowAnnual">고정수당 (연)</div>
+    <div class="fields">
+      <label class="f"><span class="l" data-i18n="aFestival">명절수당</span><input id="o_festival" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="aOtherExtra">기타수당 (보험 외 추가)</span><input id="o_otherExtra" class="num money" inputmode="numeric"></label>
+      <label class="f full"><span class="l" data-i18n="aIns">4대보험 근로자 부담분 회사 지원</span><select id="o_ins"></select></label>
+    </div>
+    <div class="sub" data-i18n="subMisc">TOTAL MISCELLANEOUS (연)</div>
+    <div class="fields">
+      <label class="f"><span class="l" data-i18n="mFlex">복지포인트(연)</span><input id="o_flex" class="num money" inputmode="numeric"></label>
+      <label class="f"><span class="l" data-i18n="mOther">기타 연간</span><input id="o_misc" class="num money" inputmode="numeric"></label>
+      <label class="f full"><span class="l" data-i18n="fManual">연 기본급 직접 지정(선택)</span><input id="o_manual" class="num money" inputmode="numeric" placeholder="—"></label>
+    </div>
+    <p class="hint" data-i18n="offerHint"></p>
+   </div>
+
+   <div class="card">
+    <h2><span class="num">4</span><span data-i18n="secPeers">내부 비교군 (동일 근속 직원)</span></h2>
+    <div class="fields">
+      <label class="f"><span class="l" data-i18n="peerBasis">비교 기준</span><select id="p_basis"></select></label>
+      <label class="f"><span class="l" data-i18n="peerDefRaise">기본 예상 인상률(%)</span><input id="p_defRaise" class="num" type="number" step="0.1" inputmode="decimal"></label>
+    </div>
+    <div id="peerTbl" style="margin-top:10px"></div>
+    <div class="btn-row"><button class="btn ghost" id="btnAddPeer" data-i18n="btnAddPeer">+ 직원 추가</button></div>
+    <p class="hint" data-i18n="peerHint"></p>
+   </div>
+
+   <div class="card">
+    <div class="btn-row" style="margin:0">
+      <button class="btn" id="btnSave" data-i18n="btnSave">후보자 저장</button>
+      <button class="btn ghost" id="btnNew" data-i18n="btnNew">새 후보자</button>
+      <button class="btn ghost" id="btnSample" data-i18n="btnSample">예시 입력</button>
+    </div>
+   </div>
+  </div>
+
+  <div>
+   <div class="card">
+    <h2 data-i18n="secResult">추천 결과</h2>
+    <div class="kpis" id="kpis"></div>
+    <div class="scen" id="scenarios"></div>
+   </div>
+   <div class="card">
+    <h2 data-i18n="secPosition">포지셔닝 (연 기본급 기준)</h2>
+    <div id="chart"></div>
+   </div>
+   <div class="card" id="peerResultCard">
+    <h2 data-i18n="secPeerResult">내부 형평성 비교</h2>
+    <div id="peerResult"></div>
+   </div>
+   <div class="card">
+    <h2 data-i18n="secFlags">체크 포인트</h2>
+    <ul class="flags" id="flags"></ul>
+   </div>
+   <div class="card">
+    <h2 data-i18n="secRationale">사측 보고용 근거 요약</h2>
+    <div class="note" id="rationale"></div>
+    <div class="btn-row"><button class="btn ghost" id="btnCopyRat" data-i18n="btnCopy">복사</button></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ OFFER SHEET ============ -->
+<section class="tab" id="tab-sheet">
+ <div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+   <h2 style="margin:0">COMPENSATION SPREADSHEET - OFFER</h2>
+   <div class="btn-row no-print" style="margin:0">
+    <button class="btn ghost" id="btnCsv" data-i18n="btnCsv">CSV 내보내기</button>
+    <button class="btn" data-print="sheet" data-i18n="btnPrint">인쇄 / PDF</button>
+   </div>
+  </div>
+  <div class="tbl-wrap" style="margin-top:12px"><table id="sheetHead"></table></div>
+  <div class="tbl-wrap" style="margin-top:12px"><table id="sheetTbl"></table></div>
+  <div class="tbl-wrap" style="margin-top:16px"><table id="bandTbl"></table></div>
+  <p class="hint">* PIR : Position in Range = (Base − Min) / (Max − Min) · ** CR : Comp Ratio = Base / Midpoint</p>
+  <p class="hint" id="insNote"></p>
+ </div>
+</section>
+
+<!-- ============ TOTAL REWARDS ============ -->
+<section class="tab" id="tab-rewards">
+ <div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+   <h2 style="margin:0" data-i18n="rewardsTitle">총보상(Total Rewards) 비교</h2>
+   <div class="btn-row no-print" style="margin:0"><button class="btn" data-print="rewards" data-i18n="btnPrint">인쇄 / PDF</button></div>
+  </div>
+  <p class="hint" data-i18n="rewardsHint"></p>
+  <div id="rewardsBody"></div>
+ </div>
+</section>
+
+<!-- ============ MARKET ============ -->
+<section class="tab" id="tab-market">
+ <div class="card">
+  <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><h2 style="margin:0" data-i18n="mktTitle"></h2><button class="btn no-print" data-print="market" data-i18n="btnPrint">인쇄 / PDF</button></div>
+  <p class="hint" id="mktMeta"></p>
+  <div class="tbl-wrap" style="margin-top:12px"><table id="mktTbl"></table></div>
+  <div id="mktChart" style="margin-top:12px"></div>
+  <p class="hint" data-i18n="mktHint"></p>
+ </div>
+ <div class="card mkt-md" id="mktNotes"></div>
+ <div class="card">
+  <h2 data-i18n="changelog">데이터 업데이트 이력</h2>
+  <div id="mktLog"></div>
+ </div>
+</section>
+
+<!-- ============ SAVED ============ -->
+<section class="tab" id="tab-saved">
+ <div class="card">
+  <h2 data-i18n="savedTitle">저장된 후보자</h2>
+  <div id="savedList"></div>
+  <div class="btn-row">
+   <button class="btn ghost" id="btnExportAll" data-i18n="btnExportAll">전체 내보내기(JSON)</button>
+   <label class="btn ghost" style="display:inline-flex;align-items:center"><span data-i18n="btnImport">가져오기(JSON)</span><input type="file" id="fileImport" accept="application/json,.json" hidden></label>
+   <button class="btn ghost" id="btnExportCsvAll" data-i18n="btnExportCsvAll">전체 CSV</button>
+  </div>
+  <p class="hint" data-i18n="savedHint"></p>
+ </div>
+</section>
+
+<!-- ============ SETTINGS ============ -->
+<section class="tab" id="tab-settings">
+ <div class="card">
+  <h2 data-i18n="setCompanyFile">회사 설정 파일</h2>
+  <p class="hint" data-i18n="setCompanyFileHint"></p>
+  <div class="btn-row">
+   <label class="btn" style="display:inline-flex;align-items:center"><span data-i18n="btnImportSet">설정 가져오기</span><input type="file" id="fileImportSet" accept="application/json,.json" hidden></label>
+   <button class="btn ghost" id="btnExportSet" data-i18n="btnExportSet">설정 내보내기</button>
+   <button class="btn danger" id="btnResetSet" data-i18n="btnResetSet">설정 초기화</button>
+  </div>
+ </div>
+ <div class="card">
+  <h2 data-i18n="setGrades">포지션 · Job Grade 연봉 밴드</h2>
+  <div class="tbl-wrap"><table class="edit" id="gradeTbl"></table></div>
+  <div class="btn-row"><button class="btn ghost" id="btnAddGrade" data-i18n="btnAddRow">행 추가</button></div>
+  <p class="hint" data-i18n="gradeHint"></p>
+ </div>
+ <div class="card">
+  <h2 data-i18n="setPay">수당 · 복리후생 정책 (오퍼 기본값)</h2>
+  <div class="fields" id="payFields"></div>
+  <h3 data-i18n="setIns">4대보험 근로자 부담률 (%, 연 기본급 기준)</h3>
+  <div class="fields" id="insFields"></div>
+  <p class="hint" id="insHint"></p>
+ </div>
+ <div class="card">
+  <h2 data-i18n="setMarket">시장 기준표</h2>
+  <p class="hint" id="marketSrc"></p>
+  <div class="tbl-wrap"><table class="edit" id="marketEditTbl"></table></div>
+  <div class="btn-row"><button class="btn ghost" id="btnMarketReset" data-i18n="btnMarketReset">최신 시장 데이터로 되돌리기</button></div>
+ </div>
+ <div class="card">
+  <h2 data-i18n="setRules">추천 규칙</h2>
+  <div class="fields" id="ruleFields"></div>
+  <h3 data-i18n="setRaise">시장 대비 현재 위치별 목표 인상률</h3>
+  <div class="tbl-wrap"><table class="edit" id="raiseTbl"></table></div>
+  <h3 data-i18n="setAdj">보정 계수 (%)</h3>
+  <div class="tbl-wrap"><table class="edit" id="adjTbl"></table></div>
+ </div>
+ <div class="card">
+  <h2 data-i18n="setBenefits">비현금 복리후생 (후보자용 보상 요약에 표시)</h2>
+  <div class="tbl-wrap"><table class="edit" id="benTbl"></table></div>
+  <div class="btn-row"><button class="btn ghost" id="btnAddBen" data-i18n="btnAddRow">행 추가</button></div>
+ </div>
+ <div class="card hidden" id="accountCard">
+  <h2 data-i18n="account">내 계정</h2>
+  <div class="fields">
+   <label class="f"><span class="l" data-i18n="curPw">현재 비밀번호</span><input id="acc_old" type="password" autocomplete="current-password"></label>
+   <label class="f"><span class="l" data-i18n="newPw">새 비밀번호</span><input id="acc_new" type="password" autocomplete="new-password"></label>
+  </div>
+  <div class="btn-row">
+   <button class="btn ghost" id="btnChangePw" data-i18n="changePw">비밀번호 변경</button>
+   <button class="btn danger" id="btnWithdraw" data-i18n="withdraw">회원 탈퇴</button>
+  </div>
+ </div>
+</section>
+
+<!-- ============ ADMIN ============ -->
+<section class="tab" id="tab-admin">
+ <div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+   <h2 style="margin:0" data-i18n="tabAdmin">회원 관리</h2>
+   <button class="btn ghost" id="btnAdminRefresh" data-i18n="refresh">새로고침</button>
+  </div>
+  <div class="tbl-wrap" style="margin-top:12px"><table id="adminTbl"></table></div>
+  <p class="hint" data-i18n="adminHint"></p>
+ </div>
+</section>
+</main>
+<div class="toast" id="toast"></div>
+<script src="config.js"></script>
+<script src="data/market.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
